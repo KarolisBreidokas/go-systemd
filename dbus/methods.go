@@ -738,3 +738,14 @@ func (c *Conn) ThawUnit(ctx context.Context, unit string) error {
 func (c *Conn) AttachProcessesToUnit(ctx context.Context, unit, subcgroup string, pids []uint32) error {
 	return c.sysobj.CallWithContext(ctx, "org.freedesktop.systemd1.Manager.AttachProcessesToUnit", 0, unit, subcgroup, pids).Store()
 }
+
+type UnitProcess struct {
+	CGroupPath string
+	PID        uint32
+	Cmdline    string
+}
+
+func (c *Conn) GetUnitProcessesContext(ctx context.Context, unit string) ([]UnitProcess, error) {
+	var result []UnitProcess
+	return result, c.sysobj.CallWithContext(ctx, "org.freedesktop.systemd1.Manager.GetUnitProcesses", 0, unit).Store(&result)
+}
