@@ -437,6 +437,24 @@ func NewJournal() (j *Journal, err error) {
 	return j, nil
 }
 
+// NewJournal returns a new Journal instance pointing to the local journal
+func NewJournalSystem() (j *Journal, err error) {
+	j = &Journal{}
+
+	sd_journal_open, err := getFunction("sd_journal_open")
+	if err != nil {
+		return nil, err
+	}
+
+	r := C.my_sd_journal_open(sd_journal_open, &j.cjournal, C.SD_JOURNAL_LOCAL_ONLY| C.SD_JOURNAL_SYSTEM)
+
+	if r < 0 {
+		return nil, fmt.Errorf("failed to open journal: %w", syscall.Errno(-r))
+	}
+
+	return j, nil
+}
+
 // NewJournalFromDir returns a new Journal instance pointing to a journal residing
 // in a given directory.
 func NewJournalFromDir(path string) (j *Journal, err error) {
